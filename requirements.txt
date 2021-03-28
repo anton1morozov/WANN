@@ -1,0 +1,9 @@
+numpy
+matplotlib
+networkx
+tensorflow-gpu==1.14.0
+jupyter
+kaggle
+pandas
+scipy
+nbstripout
