@@ -1,7 +1,6 @@
 import tensorflow as tf
 import json
 
-# from wann.connection import Connection
 from wann.base_node import BaseNode
 
 
@@ -11,22 +10,17 @@ class OutputNode(BaseNode):
     """
 
     def __init__(self, name: str):
+        """
+        :param name: name of the node
+        """
         super().__init__(name)
         self.in_connections = []
         self.out = None
 
     def build(self):
         """
-        Building node output
+        Building node output in tensorflow graph
         """
-
-        # DEBUG
-        # for connection in self.in_connections:
-        #     if connection.is_enabled:
-        #         print(f"connection.in_node.name: {connection.in_node.name}")
-        #         print(f"connection.in_node.out: {connection.in_node.out}")
-        #         print(f"connection.out: {connection.out}")
-
         self.out = tf.reduce_sum(tf.stack([_.out for _ in self.in_connections if _.is_enabled], axis=1), axis=1)
 
     def all_in_connections_built(self) -> bool:
@@ -40,14 +34,22 @@ class OutputNode(BaseNode):
                     return False
         return True
 
-    def add_in_connection(self, connection):
-        # assert isinstance(connection, Connection)
+    def add_in_connection(self, connection) -> None:
+        """
+        Add input connection
+        """
         self.in_connections.append(connection)
 
-    def no_in_connections(self):
+    def no_in_connections(self) -> bool:
+        """
+        Check if there are no input connections
+        """
         return not self.in_connections
 
-    def to_json(self):
+    def to_json(self) -> str:
+        """
+        Save this node as a json string
+        """
         return json.dumps({'name': self.name}, indent=4)
 
     def __repr__(self):

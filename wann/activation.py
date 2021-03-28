@@ -2,6 +2,9 @@ from enum import Enum
 
 
 class Activation(Enum):
+    """
+    Activations used in hidden nodes
+    """
     LINEAR = 0,
     RELU = 1,
     SIGMOID = 2,

@@ -54,10 +54,10 @@ class Connection:
         """
         self.is_enabled = False
 
-    def to_json(self):
+    def to_json(self) -> str:
         """
-
-        :return:
+        Save this connection as a json-string
+        :return: json-string, containing information of this connection
         """
         json_d = dict()
         json_d['in_node'] = self.in_node.name

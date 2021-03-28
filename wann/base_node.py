@@ -6,7 +6,10 @@ class BaseNode:
     Base class of all other nodes
     """
     def __init__(self, name: str, level: Optional[int] = None):
+        """
+        :param name: name of the node
+        :param level: level of the node in WANN
+        """
         assert isinstance(name, str), f"Name must be of type 'str', got {type(name)}"
-        # assert isinstance(level, int), f"Level must be of type 'int', got {type(level)}"
         self.name = name
         self.level = level

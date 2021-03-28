@@ -1,8 +1,6 @@
 import tensorflow as tf
-import numpy as np
 from random import choice, randint
 from enum import Enum
-import sys
 import json
 import networkx as nx
 import logging
@@ -69,11 +67,11 @@ class WANN:
                  json_filename: str = None,
                  output_activation: str = 'linear'):
         """
-        :param sensor_nodes:
-        :param output_nodes:
-        :param input_dict:
-        :param json_filename:
-        :param output_activation:
+        :param sensor_nodes: names to be assigned to all sensor nodes
+        :param output_nodes: names to be assigned to all output nodes
+        :param input_dict: dictionary, containing all required information for the WANN
+        :param json_filename: json-file, from which the WANN must be loaded
+        :param output_activation: activation, that must be applied to all output nodes
         """
         if output_activation:
             assert output_activation in self.supported_output_activations,\
@@ -367,7 +365,7 @@ class WANN:
         Check if suggested connection is possible
         :param in_node: input node of suggested connection
         :param out_node: output node of suggested connection
-        :return:
+        :return: True, if connection can be created, False otherwise
         """
 
         # input node can't exist before out_node
@@ -419,8 +417,6 @@ class WANN:
         # Choosing type of mutation
         mutation = choice(available_mutations)
 
-        # print("debug: performing mutation '%s'" % mutation.name)
-
         # Performing mutation
         if Mutation.INSERT_NODE == mutation:  # HERE LEVEL OF THE NODE AND ALL THE FOLLOWING NODES CAN BE CHANGED
 
@@ -464,11 +460,6 @@ class WANN:
 
         elif Mutation.ADD_CONNECTION == mutation:  # HERE LEVEL OF THE NODE CAN BE CHANGED
 
-            # DEBUG
-            # print("debug: all_possible_connections:")
-            # for connection in possible_connections:
-            #     print("'%s' -> '%s'" % (connection[0].name, connection[1].name))
-
             in_node, out_node = choice(possible_connections)
 
             connection = Connection(in_node, out_node, weight_pl=self.shared_weight_pl)
@@ -504,6 +495,10 @@ class WANN:
         return self
 
     def set_levels(self) -> 'WANN':
+        """
+        Set correct levels for all nodes in the WANN
+        :return: this WANN with correct level in every node
+        """
 
         states = [False] * len(self.nodes_genes)
 
@@ -531,11 +526,12 @@ class WANN:
         """
         Clear built tensorflow graph
         """
-        # del self.s
-        # self.s = tf.InteractiveSession(config=self.config)
         self.is_built = False
 
-    def build_tf_graph(self):
+    def build_tf_graph(self) -> None:
+        """
+        Build tensorflow graph of this WANN
+        """
 
         self.s = tf.Session(config=self.config)
 
@@ -547,15 +543,11 @@ class WANN:
             logging.info("Building node '%s' of type '%s'" % (node.name, str(type(node))))
 
             if isinstance(node, SensorNode):
-
                 # if there are no output connections from this sensor node
                 if not node.out_connections:
                     nodes_build_status[self.nodes_genes.index(node)] = NodeBuildState.INACCESSIBLE  # DEBUG
-                    # print("\t\tdebug: nodes_build_status: %s" % str(nodes_build_status))
                     return
-
             else:
-
                 # Check if all input connections are built
                 if not node.all_in_connections_built():
                     logging.debug("Not all input connections are built")
@@ -563,10 +555,7 @@ class WANN:
 
             # Building current node
             node.build()
-
-            # DEBUG
             nodes_build_status[self.nodes_genes.index(node)] = NodeBuildState.BUILT
-            # logging.debug("nodes_build_status: %s" % str([_.name for _ in nodes_build_status]))
 
             # Recursively calling building of all output nodes
             if not isinstance(node, OutputNode):
@@ -599,15 +588,18 @@ class WANN:
     def run(self, data, weight):
         """
         Run computation through WANN using built tensorflow graph and provided weight value
-        :param data:
-        :param weight:
-        :return:
+        :param data: data to be processed
+        :param weight: shared weight to use
+        :return: numpy array, containing results of graph processing
         """
         assert self.s is not None
         assert self.out is not None
         return self.s.run(self.out, feed_dict={self.input_pl: data, self.shared_weight_pl: weight})
 
-    def to_dict(self):
+    def to_dict(self) -> Dict:
+        """
+        Return all infomation about this WANN as a dictionary object
+        """
 
         # Creating dictionary
         d = dict()
@@ -639,7 +631,11 @@ class WANN:
 
         return d
 
-    def from_dict(self, d):
+    def from_dict(self, d: Dict) -> None:
+        """
+        Restore this WANN, using information from dictionary
+        :param d: dictionary, containing all required information for this WANN
+        """
 
         # Creating sensors
         # print(json.dumps(d, indent=4))
@@ -685,7 +681,12 @@ class WANN:
         # Setting levels of nodes
         self.set_levels()
 
-    def save_json(self, filename, additional_info=None):
+    def save_json(self, filename: str, additional_info=None) -> None:
+        """
+        Save WANN to json file
+        :param filename: name of the file, where WANN must be storred
+        :param additional_info: additional information, that should be included in the file
+        """
 
         d = self.to_dict()
         d.update(additional_info)
@@ -694,7 +695,11 @@ class WANN:
 
         logging.info("wann saved in '%s'" % filename)
 
-    def load_json(self, filename):
+    def load_json(self, filename: str) -> None:
+        """
+        Load WANN from json file
+        :param filename: file, where WANN is stored
+        """
 
         with open(filename, 'r') as f:
             d = json.load(f)
@@ -703,7 +708,12 @@ class WANN:
 
         logging.info("wann is loaded from json-file '%s'" % filename)
 
-    def save_tf(self, filename):
+    def save_tf(self, filename: str) -> bool:
+        """
+        Save tensorflow graph separately
+        :param filename: file, where tensorflow graph must be saved
+        :return: True, if graph is saved, False otherwise
+        """
         if not self.is_built:
             logging.error("TF graph is not built!")
             return False
@@ -712,7 +722,10 @@ class WANN:
                 f.write(self.s.graph.as_graph_def().SerializeToString())
                 return True
 
-    def draw(self):
+    def draw(self) -> None:
+        """
+        Draw current WANNs structure
+        """
 
         # Creating networkX graph object
         graph = nx.DiGraph()

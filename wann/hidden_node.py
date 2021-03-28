@@ -1,7 +1,6 @@
 import tensorflow as tf
 import json
 
-# from wann.connection import Connection
 from wann.activation import Activation
 from wann.base_node import BaseNode
 
@@ -13,12 +12,10 @@ class HiddenNode(BaseNode):
 
     def __init__(self, name: str, activation: Activation):
         """
-
-        :param name:
-        :param activation:
+        :param name: name of the node
+        :param activation: activation, that this node should use
         """
         super().__init__(name)
-        # assert isinstance(activation, NodeActivation)
         self.activation = activation
         self.in_connections = []
         self.out_connections = []
@@ -68,33 +65,35 @@ class HiddenNode(BaseNode):
                     return False
         return True
 
-    def add_in_connection(self, connection):
+    def add_in_connection(self, connection) -> None:
         """
         Adding input connection to this node
-        :param connection:
         """
-        # assert isinstance(connection, Connection)
         self.in_connections.append(connection)
 
-    def add_out_connection(self, connection):
-        # assert isinstance(connection, Connection)
+    def add_out_connection(self, connection) -> None:
+        """
+        Adding output connection
+        """
         self.out_connections.append(connection)
 
-    def no_in_connections(self):
+    def no_in_connections(self) -> bool:
         """
-
-        :return:
+        Check if there are no input connections to this node
         """
         return not self.in_connections
 
-    def no_out_connections(self):
+    def no_out_connections(self) -> bool:
         """
-
-        :return:
+        Check if there are no output connections from this node
         """
         return not self.out_connections
 
-    def to_json(self):
+    def to_json(self) -> str:
+        """
+        Save this node as a json-string
+        :return: json-string, containing information of this node
+        """
         json_d = dict()
         json_d['name'] = self.name
         json_d['level'] = self.level
