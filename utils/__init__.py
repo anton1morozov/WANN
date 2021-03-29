@@ -1,0 +1,1 @@
+from .wann_classification_trainer import WANNClassificationTrainer
