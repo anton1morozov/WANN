@@ -10,3 +10,4 @@ To do:
 - make article-like WANN structure drawing
 - add shared weight fitting (choose single value, that gives WANN with current structure best target metric)
 - add fitting for WANN with different weights
+- add unittests
