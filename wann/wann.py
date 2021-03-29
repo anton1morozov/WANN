@@ -369,11 +369,11 @@ class WANN:
         """
 
         # input node can't exist before out_node
-        if in_node in [node for node in self._walk_backward(out_node, return_input_node=False)]:
+        if in_node in list(self._walk_backward(out_node, return_input_node=False)):
             return False
 
         # reverse connection can't exist either
-        if out_node in [node for node in self._walk_backward(in_node, return_input_node=False)]:
+        if out_node in list(self._walk_backward(in_node, return_input_node=False)):
             return False
 
         return True
