@@ -25,12 +25,12 @@ class WANNClassificationTrainer:
                  start_from_checkpoint: bool = False,
                  visualize_history: bool = False):
         """
-        :param sensor_nodes:
-        :param output_nodes:
-        :param num_iterations:
-        :param batchsize:
-        :param weights:
-        :param checkpoint_dir:
+        :param sensor_nodes: sensor nodes names to use for WANN creation
+        :param output_nodes: output nodes names to use for WANN creation
+        :param num_iterations: number of iterations to spend on WANNs training
+        :param batchsize: minibatch size of data to use during training
+        :param weights: WANNs shared weights
+        :param checkpoint_dir: directory, where
         :param start_from_checkpoint:
         :param visualize_history:
         """
@@ -153,7 +153,8 @@ class WANNClassificationTrainer:
                   f" complexity = {iter_complexity}")
 
             # Creating list of evaluated WANNs and sorting it by mean accuracy
-            evaluated_wanns = sorted(list(zip(self.wanns, loss, accuracy, complexity)), key=lambda p: p[2])
+            evaluated_wanns = sorted(list(zip(self.wanns, loss, accuracy, complexity)),
+                                     key=lambda p: p[2], reverse=True)
 
             # Cutting WANNs with low accuracy (7 WANNs are left)
             del evaluated_wanns[-2:]
@@ -205,7 +206,3 @@ class WANNClassificationTrainer:
             self.wanns = new_wanns
 
         return self.wanns
-
-
-
-
